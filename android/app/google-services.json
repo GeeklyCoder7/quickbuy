@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726845973497",
+    "project_id": "e-commerce-app-flutter-d1d09",
+    "storage_bucket": "e-commerce-app-flutter-d1d09.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726845973497:android:068eba89018b5021085328",
+        "android_client_info": {
+          "package_name": "com.quickbuy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlQ37dN-jr1f1eya2QIwvrdy25nFOsYCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
