@@ -18,6 +18,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
   //Variables to fetch data from database
   List<CategoryModel> categories = [];
 
+  //Variables to handle the state of the application
+  bool isCategoryLoading = true;
+
   //Method for fetching the categories from the database
   Future<void> fetchCategories() async {
     try {
@@ -36,6 +39,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         }
 
         setState(() {
+          isCategoryLoading = false;
           categories = temporaryCategoriesList;
         });
       }
@@ -81,7 +85,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
           width: double.infinity,
           child: Column(
             children: [
-              CategorySectionWidget(categoriesList: categories,),
+              CategorySectionWidget(categoriesList: categories, isLoading: isCategoryLoading,),
             ],
           ),
         ),
