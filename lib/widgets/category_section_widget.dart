@@ -9,7 +9,8 @@ class CategorySectionWidget extends StatefulWidget {
   final List<CategoryModel> categoriesList;
   final bool isLoading;
 
-  const CategorySectionWidget({super.key, required this.categoriesList, required this.isLoading});
+  const CategorySectionWidget(
+      {super.key, required this.categoriesList, required this.isLoading});
 
   @override
   State<CategorySectionWidget> createState() => _CategorySectionWidgetState();
@@ -19,7 +20,7 @@ class _CategorySectionWidgetState extends State<CategorySectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 115,
+      height: 110,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.primary,
@@ -43,10 +44,18 @@ class _CategorySectionWidgetState extends State<CategorySectionWidget> {
           child: Column(
             children: [
               //Category circle image avatar
-              CircleAvatar(
-                radius: 35,
-                backgroundImage: NetworkImage(
-                  widget.categoriesList[index].categoryImageUrl,
+              Container(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.categoryBorder,
+                      width: 0.5,
+                    )),
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(
+                    widget.categoriesList[index].categoryImageUrl,
+                  ),
                 ),
               ),
 
@@ -56,7 +65,7 @@ class _CategorySectionWidgetState extends State<CategorySectionWidget> {
                   widget.categoriesList.elementAt(index).categoryName,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 17,
+                    fontSize: 15,
                   ),
                 ),
               ),

@@ -24,17 +24,20 @@ class _HomePageScreenState extends State<HomePageScreen> {
   //Method for fetching the categories from the database
   Future<void> fetchCategories() async {
     try {
-      DatabaseReference categoriesNodeReference = databaseReference.child("categories");
+      DatabaseReference categoriesNodeReference =
+          databaseReference.child("categories");
       DatabaseEvent event = await categoriesNodeReference.once();
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists && snapshot.value != null) {
-        Map<String, dynamic> data = Map<String, dynamic>.from(snapshot.value as Map);
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
 
         List<CategoryModel> temporaryCategoriesList = [];
 
         for (var category in data.values) {
-          Map<String, dynamic> categoryData = Map<String, dynamic>.from(category);
+          Map<String, dynamic> categoryData =
+              Map<String, dynamic>.from(category);
           temporaryCategoriesList.add(CategoryModel.fromMap(categoryData));
         }
 
@@ -79,17 +82,41 @@ class _HomePageScreenState extends State<HomePageScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            children: [
-              CategorySectionWidget(categoriesList: categories, isLoading: isCategoryLoading,),
-            ],
+      body: CustomScrollView(
+        slivers: [
+          //Categories section that hides when the user scrolls
+          SliverAppBar(
+            pinned: false,
+            floating: true,
+            snap: true,
+            stretch: true,
+            stretchTriggerOffset: 100,
+            backgroundColor: AppColors.background,
+            expandedHeight: 110,
+            flexibleSpace: FlexibleSpaceBar(
+              background: AnimatedOpacity(
+                duration: Duration(milliseconds: 400),
+                opacity: 1,
+                child: CategorySectionWidget(
+                  categoriesList: categories,
+                  isLoading: isCategoryLoading,
+                ),
+              ),
+            ),
           ),
-        ),
-      )
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text("Hello World $index times"),
+                );
+              },
+              childCount: 50,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
