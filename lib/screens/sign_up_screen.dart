@@ -28,7 +28,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   //vairables to handle texfields
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _userFullNameController = TextEditingController();
   final TextEditingController _userEmailController = TextEditingController();
   final TextEditingController _userPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -38,7 +37,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _userEmail = "";
   String _userPassword = "";
   String _userId = "";
-  String _userFullName = "";
 
   //Method for handling the sign-up
   Future<void> _signUp() async {
@@ -47,7 +45,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     //Storing the text field values in the variables
-    _userFullName = _userFullNameController.text.trim();
     _userEmail = _userEmailController.text.trim();
     _userPassword = _userPasswordController.text.trim();
 
@@ -67,10 +64,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       //Creating a user object
       UserModel newUser = UserModel(
-          userId: _userId, userFullName: _userFullName, userEmail: _userEmail);
+          userId: _userId, userEmail: _userEmail);
 
       //Storing the data in the firebase realtime database
       await _databaseReference.child("users").child(_userId).set(newUser.toMap());
+
+      _userEmailController.clear();
+      _userPasswordController.clear();
 
       //Navigate to the sign-up screen
       Navigator.of(context).push(
@@ -102,27 +102,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           key: _formKey,
           child: Column(
             children: [
-              SizedBox(
-                height: 30,
-              ),
-              //Name textfield
-              TextFormField(
-                controller: _userFullNameController,
-                decoration: InputDecoration(
-                  labelText: 'Full name',
-                  labelStyle: TextStyle(
-                    color: AppColors.text,
-                  ),
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your full name',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Full name is required';
-                  }
-                  return null;
-                },
-              ),
               SizedBox(
                 height: 30,
               ),
@@ -224,7 +203,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               //Already have an account text widget
               GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => SignInScreen()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SignInScreen()));
                 },
                 child: Text(
                   'Already have an account? Sign In',
