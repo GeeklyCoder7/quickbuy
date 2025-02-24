@@ -1,8 +1,11 @@
 import 'package:ecommerce_application/models/category_model.dart';
 import 'package:ecommerce_application/widgets/category_section_widget.dart';
+import 'package:ecommerce_application/widgets/random_products_section_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
+
+import '../models/product_model.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -17,9 +20,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   //Variables to fetch data from database
   List<CategoryModel> categories = [];
+  List<ProductModel> products = [];
 
   //Variables to handle the state of the application
   bool isCategoryLoading = true;
+  bool isProductLoading = true;
 
   //Method for fetching the categories from the database
   Future<void> fetchCategories() async {
@@ -51,11 +56,38 @@ class _HomePageScreenState extends State<HomePageScreen> {
     }
   }
 
+  //Method for fetching products from the database
+  Future<void> fetchProducts() async {
+    try {
+      DatabaseReference productsNodeReference =
+          databaseReference.child("products");
+      DatabaseEvent event = await productsNodeReference.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists && snapshot.value != null) {
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
+        List<ProductModel> temporaryProductsList = [];
+
+        for (var product in data.values) {
+          Map<String, dynamic> productData = Map<String, dynamic>.from(product);
+          temporaryProductsList.add(ProductModel.fromMap(productData));
+        }
+        setState(() {
+          products = temporaryProductsList;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchCategories();
+    fetchProducts();
   }
 
   @override
@@ -104,15 +136,16 @@ class _HomePageScreenState extends State<HomePageScreen> {
               ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text("Hello World $index times"),
-                );
-              },
-              childCount: 50,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Column(
+                children: [
+                  RandomProductsSectionWidget(
+                    productsList: products,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
