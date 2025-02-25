@@ -16,6 +16,9 @@ class _RandomProductsSectionWidgetState
     extends State<RandomProductsSectionWidget> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -24,7 +27,7 @@ class _RandomProductsSectionWidgetState
         crossAxisCount: 2,
         crossAxisSpacing: 5,
         mainAxisSpacing: 20,
-        childAspectRatio: 0.55,
+        childAspectRatio: screenWidth > 600 ? 0.7 : 0.62,
       ),
       itemBuilder: (context, index) {
         return Card(
@@ -33,13 +36,13 @@ class _RandomProductsSectionWidgetState
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
-          color: Colors.white,
+          color: Color(0xFFECEFF1),
           child: Column(
             children: [
               //Product image
               Container(
                 height: 180,
-                color: Colors.white,
+                color: Color(0xFFECEFF1),
                 width: double.infinity,
                 child: Image(
                   image: NetworkImage(
@@ -108,9 +111,9 @@ class _RandomProductsSectionWidgetState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.add,
+                        Icons.add_outlined,
                         color: Colors.white,
-                        size: 20,
+                        size: 25,
                       ),
                       SizedBox(width: 5,),
                       Text(

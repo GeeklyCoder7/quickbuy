@@ -1,6 +1,7 @@
 import 'package:ecommerce_application/screens/home_page_screen.dart';
 import 'package:ecommerce_application/screens/sign_up_screen.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
+import 'package:ecommerce_application/widgets/bottom_navbar_screen_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen>
             .pushReplacement(MaterialPageRoute(builder: (_) => SignUpScreen()));
       } else {
         Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (_) => HomePageScreen()));
+            .pushReplacement(MaterialPageRoute(builder: (_) => BottomNavbarScreenWidget()));
       }
     });
   }
