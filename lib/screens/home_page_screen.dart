@@ -52,7 +52,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+      setState(() {
+        isCategoryLoading = false;
+      });
     }
   }
 
@@ -75,10 +82,18 @@ class _HomePageScreenState extends State<HomePageScreen> {
         }
         setState(() {
           products = temporaryProductsList;
+          isProductLoading = false;
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+      setState(() {
+        isProductLoading = false;
+      });
     }
   }
 
@@ -143,6 +158,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 children: [
                   RandomProductsSectionWidget(
                     productsList: products,
+                    isProductLoading: isProductLoading,
                   ),
                 ],
               ),

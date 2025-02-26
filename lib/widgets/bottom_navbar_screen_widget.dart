@@ -47,20 +47,22 @@ class _BottomNavbarScreenWidgetState extends State<BottomNavbarScreenWidget> {
           BottomNavigationBarItem(
             label: "Home",
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_filled),
+            activeIcon: Icon(Icons.home_rounded),
           ),
           BottomNavigationBarItem(
             label: "Profile",
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person)
           ),
           BottomNavigationBarItem(
             label: "Orders",
-            icon: Icon(Icons.local_shipping),
-            
+            icon: Icon(Icons.local_shipping_outlined),
+            activeIcon: Icon(Icons.local_shipping)
           ),
           BottomNavigationBarItem(
             label: "Cart",
-            icon: Icon(Icons.shopping_cart),
+            icon: Icon(Icons.shopping_cart_outlined),
+            activeIcon: Icon(Icons.shopping_cart)
           )
         ],
       ),
