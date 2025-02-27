@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ecommerce_application/models/category_model.dart';
 import 'package:ecommerce_application/widgets/category_section_widget.dart';
 import 'package:ecommerce_application/widgets/random_products_section_widget.dart';
@@ -80,6 +82,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
           Map<String, dynamic> productData = Map<String, dynamic>.from(product);
           temporaryProductsList.add(ProductModel.fromMap(productData));
         }
+        temporaryProductsList.shuffle(Random());
+
         setState(() {
           products = temporaryProductsList;
           isProductLoading = false;
