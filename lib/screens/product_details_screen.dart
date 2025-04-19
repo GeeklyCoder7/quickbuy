@@ -1,7 +1,9 @@
 import 'package:ecommerce_application/models/product_model.dart';
+import 'package:ecommerce_application/services/cart_service.dart';
 import 'package:ecommerce_application/widgets/select_quantity_spinner_widget.dart';
 import 'package:ecommerce_application/widgets/shop_with_confidence_section_widget.dart';
 import 'package:ecommerce_application/widgets/suggested_products_section.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,12 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   //variables to handle the app's state
   bool isProductBookmarked = false;
+
+  //Variables to handle database
+  String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
+
+  //Other variables
+  int selectedProductQuantity = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +196,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       SelectQuantitySpinnerWidget(
                         dropdownLabel: "Quantity",
-                        onQuantitySelected: (selectedValue) {},
+                        onQuantitySelected: (selectedValue) {
+                          selectedProductQuantity = selectedValue;
+                        },
                         quantityNumbersList: [1, 2, 3, 4, 5],
                       ),
 
@@ -203,7 +213,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  CartService().addToCart(
+                                    userId: currentUserId,
+                                    productId: widget.productToShow.productId,
+                                    quantity: selectedProductQuantity,
+                                    context: context,
+                                  );
+                                },
                                 borderRadius: BorderRadius.circular(20),
                                 splashColor: Colors.white.withOpacity(0.2),
                                 highlightColor: Colors.white.withOpacity(0.1),
@@ -298,7 +315,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 5,),
+                            SizedBox(
+                              height: 5,
+                            ),
                             SuggestedProductsSection(
                               currentProductId: widget.productToShow.productId,
                             ),

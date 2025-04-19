@@ -1,7 +1,9 @@
 import 'package:ecommerce_application/models/product_model.dart';
 import 'package:ecommerce_application/screens/product_details_screen.dart';
+import 'package:ecommerce_application/services/cart_service.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
 import 'package:ecommerce_application/utils/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -9,8 +11,11 @@ import 'package:shimmer/shimmer.dart';
 class RandomProductsSectionWidget extends StatefulWidget {
   final List<ProductModel> productsList;
   final bool isProductLoading;
-  const RandomProductsSectionWidget(
-      {super.key, required this.productsList, required this.isProductLoading});
+  const RandomProductsSectionWidget({
+    super.key,
+    required this.productsList,
+    required this.isProductLoading,
+  });
 
   @override
   State<RandomProductsSectionWidget> createState() =>
@@ -136,7 +141,16 @@ class _RandomProductsSectionWidgetState
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          CartService().addToCart(
+                            userId: FirebaseAuth.instance.currentUser!.uid
+                                .toString(),
+                            productId:
+                                widget.productsList.elementAt(index).productId,
+                            quantity: 1,
+                            context: context,
+                          );
+                        },
                         borderRadius: BorderRadius.circular(6),
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),
