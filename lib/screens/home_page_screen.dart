@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:ecommerce_application/models/category_model.dart';
 import 'package:ecommerce_application/screens/main.dart';
+import 'package:ecommerce_application/services/search_service.dart';
 import 'package:ecommerce_application/widgets/category_section_widget.dart';
 import 'package:ecommerce_application/widgets/random_products_section_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -28,6 +29,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
   //Variables to handle the state of the application
   bool isCategoryLoading = true;
   bool isProductLoading = true;
+
+  //Text field controllers
+  TextEditingController searchController = TextEditingController();
 
   //Method for fetching the categories from the database
   Future<void> fetchCategories() async {
@@ -122,6 +126,18 @@ class _HomePageScreenState extends State<HomePageScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextField(
+            controller: searchController,
+            onSubmitted: (value) async {
+              setState(() {
+                isProductLoading = true;
+              });
+
+              List<ProductModel> searchResults = await SearchService().searchProducts(value, context);
+              setState(() {
+                products = searchResults;
+                isProductLoading = false;
+              });
+            },
             decoration: InputDecoration(
               hintText: 'Search something',
               hintStyle: TextStyle(

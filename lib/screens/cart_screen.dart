@@ -79,7 +79,8 @@ class _CartScreenState extends State<CartScreen> {
   void calculateSubtotal() {
     double newSubtotal = 0;
     for (var item in cartItems) {
-      newSubtotal += item.cartItem.cartQuantity * item.productModel.productPrice;
+      newSubtotal +=
+          item.cartItem.cartQuantity * item.productModel.productPrice;
     }
 
     setState(() {
@@ -99,20 +100,13 @@ class _CartScreenState extends State<CartScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Search something',
-              hintStyle: TextStyle(
-                color: AppColors.text,
-                fontSize: 18,
-              ),
-              border: InputBorder.none,
+        title: Center(
+          child: Text(
+            textAlign: TextAlign.center,
+            "My Cart",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 25,
             ),
           ),
         ),
@@ -151,7 +145,9 @@ class _CartScreenState extends State<CartScreen> {
 
                   //More addition for free delivery text
                   Text(
-                    subtotal > 499 ? "You are eligible for FREE Delivery" : "Add items worth ${(499 - subtotal).toStringAsFixed(2)} for FREE Delivery",
+                    subtotal > 499
+                        ? "You are eligible for FREE Delivery"
+                        : "Add items worth ${(499 - subtotal).toStringAsFixed(2)} for FREE Delivery",
                     style: TextStyle(
                       fontSize: 17,
                     ),
