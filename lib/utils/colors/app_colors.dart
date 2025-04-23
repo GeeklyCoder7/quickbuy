@@ -17,6 +17,7 @@ class AppColors {
   static const Color categoryBorder = Color(0xFFBDBDBD); // Soft Grey Border
   static const Color buy_button_color = Color(0xFFF5CD06);
   static const Color card_color = Color(0xFFECEFF1);
+  static const Color already_in_cart = Color(0xFFECEFF1);
   static const List<Color> buyButtonGradient = [Colors.blue, Colors.green];
 
 
