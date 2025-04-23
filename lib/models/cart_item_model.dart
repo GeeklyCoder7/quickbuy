@@ -8,14 +8,14 @@ class CartItem {
   CartItem({
     required this.cartItemId,
     required this.cartQuantity,
-    required this.productId,
+    required this.productId
   });
 
   Map<String, dynamic> toMap() {
     return {
       'cartItemId': cartItemId,
       'cartQuantity': cartQuantity,
-      'productId': productId,
+      'productId': productId
     };
   }
 
@@ -23,7 +23,7 @@ class CartItem {
     return CartItem(
       cartItemId: map['cartItemId'],
       cartQuantity: map['cartQuantity'],
-      productId: map['productId'],
+      productId: map['productId']
     );
   }
 }

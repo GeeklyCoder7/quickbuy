@@ -1,9 +1,11 @@
 import 'package:ecommerce_application/models/product_model.dart';
+import 'package:ecommerce_application/screens/main.dart';
 import 'package:ecommerce_application/screens/product_details_screen.dart';
 import 'package:ecommerce_application/services/cart_service.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
 import 'package:ecommerce_application/utils/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -23,11 +25,90 @@ class RandomProductsSectionWidget extends StatefulWidget {
 }
 
 class _RandomProductsSectionWidgetState
-    extends State<RandomProductsSectionWidget> {
+    extends State<RandomProductsSectionWidget> with RouteAware {
+  Set<String> productIdsInCart = {};
+  bool isCartIdsLoading = true;
+
+  //Method for collecting the product ids that are in user cart
+  Future<void> fetchCartItemId() async {
+    try {
+      String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
+      DatabaseReference cartItemsNodeRef = FirebaseDatabase.instance
+          .ref()
+          .child("users")
+          .child(currentUserId)
+          .child("cart_items");
+
+      DatabaseEvent event = await cartItemsNodeRef.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists && snapshot.value != null) {
+        Map<String, dynamic> data =
+        Map<String, dynamic>.from(snapshot.value as Map);
+        Set<String> tempCartIds = {};
+
+        for (var items in data.values) {
+          Map<String, dynamic> cartMap = Map<String, dynamic>.from(items);
+          tempCartIds.add(cartMap['productId']);
+        }
+
+        setState(() {
+          productIdsInCart = tempCartIds;
+          isCartIdsLoading = false;
+        });
+      } else {
+        setState(() {
+          productIdsInCart = {};
+          isCartIdsLoading = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+    }
+  }
+
+  //Method for showing the snackbar
+  void showSnackbar() {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Already in cart")));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchCartItemId();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    routeObserver.unsubscribe(this);
+  }
+
+  @override
+  void didPopNext() {
+    // TODO: implement didPopNext
+    super.didPopNext();
+    fetchCartItemId();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: widget.isProductLoading
+      child: widget.isProductLoading || isCartIdsLoading
           ? showShimmerEffect()
           : showRandomProductsSection(),
     );
@@ -46,6 +127,8 @@ class _RandomProductsSectionWidgetState
         childAspectRatio: 0.7, // Adjusted aspect ratio
       ),
       itemBuilder: (context, index) {
+        bool productAlreadyInCart =
+        productIdsInCart.contains(widget.productsList[index].productId);
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -68,7 +151,7 @@ class _RandomProductsSectionWidgetState
               padding: EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize:
-                    MainAxisSize.min, // Important for wrap-content behavior
+                MainAxisSize.min, // Important for wrap-content behavior
                 children: [
                   // Product image (Flexible for wrap-content behavior)
                   Flexible(
@@ -120,7 +203,7 @@ class _RandomProductsSectionWidgetState
                         spacing: 0,
                         children: List.generate(
                           5,
-                          (index) => Icon(
+                              (index) => Icon(
                             Icons.star,
                             color: Colors.amber,
                             size: 16,
@@ -141,30 +224,47 @@ class _RandomProductsSectionWidgetState
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {
+                        onTap: productAlreadyInCart
+                            ? showSnackbar
+                            : () {
                           CartService().addToCart(
                             userId: FirebaseAuth.instance.currentUser!.uid
                                 .toString(),
-                            productId:
-                                widget.productsList.elementAt(index).productId,
+                            productId: widget.productsList
+                                .elementAt(index)
+                                .productId,
                             quantity: 1,
                             context: context,
                           );
+                          setState(() {
+                            productIdsInCart.add(widget.productsList.elementAt(index).productId);
+                          });
                         },
                         borderRadius: BorderRadius.circular(6),
                         splashColor: Colors.white.withOpacity(0.2),
                         highlightColor: Colors.white.withOpacity(0.1),
                         child: Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.accent,
+                            color: productAlreadyInCart
+                                ? Colors.white
+                                : AppColors.accent,
                             borderRadius: BorderRadius.all(Radius.circular(6)),
+                            border: productAlreadyInCart ? Border.all(color: Colors.amber, width: 1) : null,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
-                            children: [
+                            children: productAlreadyInCart
+                                ? [
+                              Text(
+                                "Added",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.amber, fontWeight: FontWeight.w400),
+                              ),
+                            ]
+                                : [
                               Icon(Icons.add_outlined,
                                   color: Colors.white, size: 20),
                               SizedBox(width: 5),
@@ -270,7 +370,7 @@ class _RandomProductsSectionWidgetState
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(
                     5,
-                    (index) {
+                        (index) {
                       return Shimmer.fromColors(
                         baseColor: Colors.grey[350]!,
                         highlightColor: Colors.grey[200]!,

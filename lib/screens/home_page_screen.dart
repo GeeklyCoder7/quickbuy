@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ecommerce_application/models/category_model.dart';
+import 'package:ecommerce_application/screens/main.dart';
 import 'package:ecommerce_application/widgets/category_section_widget.dart';
 import 'package:ecommerce_application/widgets/random_products_section_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -108,7 +109,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     fetchCategories();
     fetchProducts();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

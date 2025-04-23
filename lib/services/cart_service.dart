@@ -1,5 +1,7 @@
 import 'package:ecommerce_application/models/cart_item_model.dart';
+import 'package:ecommerce_application/screens/product_details_screen.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
+import 'package:ecommerce_application/widgets/random_products_section_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,17 +19,49 @@ class CartService {
   }) async {
     DatabaseReference cartItemsNodeRef =
         databaseReference.child("users").child(userId).child("cart_items");
-    DatabaseReference newCartItemNodeRef = cartItemsNodeRef.push();
-    String? cartItemId = newCartItemNodeRef.key;
+    bool alreadyInCart = false;
 
-    CartItem newCartItem = CartItem(
-      cartItemId: cartItemId,
-      cartQuantity: quantity,
-      productId: productId,
-    );
+    try {
+      DatabaseEvent event = await cartItemsNodeRef.once();
+      DataSnapshot snapshot = event.snapshot;
 
-    await newCartItemNodeRef.set(newCartItem.toMap());
-    showSuccessAnimation(context);
+      if (snapshot.exists && snapshot.value != null) {
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
+
+        data.forEach((key, value) {
+          if (value["productId"] == productId) {
+            alreadyInCart = true;
+          }
+        });
+
+        if (alreadyInCart) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Already in cart"),
+            ),
+          );
+          return;
+        }
+      }
+      DatabaseReference newCartItemNodeRef = cartItemsNodeRef.push();
+      String? cartItemId = newCartItemNodeRef.key;
+
+      CartItem newCartItem = CartItem(
+        cartItemId: cartItemId,
+        cartQuantity: quantity,
+        productId: productId,
+      );
+
+      await newCartItemNodeRef.set(newCartItem.toMap());
+      showSuccessAnimation(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+    }
   }
 
   //Method to show the animation when the item is successfully added to the cart

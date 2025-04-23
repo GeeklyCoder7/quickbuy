@@ -4,6 +4,7 @@ import 'package:ecommerce_application/widgets/select_quantity_spinner_widget.dar
 import 'package:ecommerce_application/widgets/shop_with_confidence_section_widget.dart';
 import 'package:ecommerce_application/widgets/suggested_products_section.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,15 +21,74 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   //variables to handle the app's state
   bool isProductBookmarked = false;
+  bool isCartIdsLoading = true;
 
   //Variables to handle database
   String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
 
   //Other variables
   int selectedProductQuantity = 1;
+  Set<String> productIdsInCart = {};
+
+  //Method for collecting the product ids that are in user cart
+  Future<void> fetchCartItemId() async {
+    try {
+      String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
+      DatabaseReference cartItemsNodeRef = FirebaseDatabase.instance
+          .ref()
+          .child("users")
+          .child(currentUserId)
+          .child("cart_items");
+
+      DatabaseEvent event = await cartItemsNodeRef.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists && snapshot.value != null) {
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
+        Set<String> tempCartIds = {};
+
+        for (var items in data.values) {
+          Map<String, dynamic> cartMap = Map<String, dynamic>.from(items);
+          tempCartIds.add(cartMap['productId']);
+        }
+
+        setState(() {
+          productIdsInCart = tempCartIds;
+          isCartIdsLoading = false;
+        });
+      } else {
+        setState(() {
+          productIdsInCart = {};
+          isCartIdsLoading = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+    }
+  }
+
+  //Method for showing the snackbar
+  void showSnackbar() {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Already in cart")));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchCartItemId();
+  }
 
   @override
   Widget build(BuildContext context) {
+    bool productAlreadyInCart =
+        productIdsInCart.contains(widget.productToShow.productId);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -208,75 +268,156 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       Center(
                         child: Column(
-                          children: [
-                            //Add to cart button
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  CartService().addToCart(
-                                    userId: currentUserId,
-                                    productId: widget.productToShow.productId,
-                                    quantity: selectedProductQuantity,
-                                    context: context,
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(20),
-                                splashColor: Colors.white.withOpacity(0.2),
-                                highlightColor: Colors.white.withOpacity(0.1),
-                                child: Container(
-                                  width: 200,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.accent,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Add to cart",
-                                      style: TextStyle(
-                                        color: AppColors.text,
-                                        fontSize: 20,
+                          children: productAlreadyInCart
+                              ? [
+                                  //Add to cart button
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {
+                                        showSnackbar();
+                                      },
+                                      borderRadius: BorderRadius.circular(20),
+                                      splashColor:
+                                          Colors.white.withOpacity(0.2),
+                                      highlightColor:
+                                          Colors.white.withOpacity(0.1),
+                                      child: Container(
+                                        width: 200,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(20),
+                                          ),
+                                          border: Border.all(color: Colors.amber, width: 1),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Added",
+                                            style: TextStyle(
+                                              color: Colors.amber,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
 
-                            //Buy now button
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {},
-                                borderRadius: BorderRadius.circular(20),
-                                splashColor: Colors.white.withOpacity(0.2),
-                                highlightColor: Colors.white.withOpacity(0.1),
-                                child: Container(
-                                  width: 200,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.buy_button_color,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Buy now",
-                                      style: TextStyle(
-                                        color: AppColors.text,
-                                        fontSize: 20,
+                                  //Buy now button
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {},
+                                      borderRadius: BorderRadius.circular(20),
+                                      splashColor:
+                                          Colors.white.withOpacity(0.2),
+                                      highlightColor:
+                                          Colors.white.withOpacity(0.1),
+                                      child: Container(
+                                        width: 200,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accent,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Buy now",
+                                            style: TextStyle(
+                                              color: AppColors.text,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ],
+                                ]
+                              : [
+                                  //Add to cart button
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () async {
+                                        await CartService().addToCart(
+                                          userId: currentUserId,
+                                          productId:
+                                              widget.productToShow.productId,
+                                          quantity: selectedProductQuantity,
+                                          context: context,
+                                        );
+                                        // Refresh the cart state after adding
+                                        await fetchCartItemId();
+
+                                        // Rebuild the UI with updated productIdsInCart
+                                        setState(() {});
+                                      },
+                                      borderRadius: BorderRadius.circular(20),
+                                      splashColor:
+                                          Colors.white.withOpacity(0.2),
+                                      highlightColor:
+                                          Colors.white.withOpacity(0.1),
+                                      child: Container(
+                                        width: 200,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.buy_button_color,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Add to cart",
+                                            style: TextStyle(
+                                              color: AppColors.text,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  //Buy now button
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {},
+                                      borderRadius: BorderRadius.circular(20),
+                                      splashColor:
+                                          Colors.white.withOpacity(0.2),
+                                      highlightColor:
+                                          Colors.white.withOpacity(0.1),
+                                      child: Container(
+                                        width: 200,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accent,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Buy now",
+                                            style: TextStyle(
+                                              color: AppColors.text,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                         ),
                       ),
 
