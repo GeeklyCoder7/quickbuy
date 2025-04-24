@@ -33,7 +33,9 @@ class ProductModel {
       productCategory: map['productCategory'],
       productDescription: map['productDescription'],
       productImageUrl: map['productImageUrl'],
-      productPrice: (map['productPrice'] is int) ? (map['productPrice'] as int).toDouble() : map['productPrice'],
+      productPrice: (map['productPrice'] is int)
+          ? (map['productPrice'] as int).toDouble()
+          : map['productPrice'],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ecommerce_application/models/cart_item_details_model.dart';
 import 'package:ecommerce_application/models/cart_item_model.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
@@ -5,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../services/bookmark_service.dart';
 
 class CartItemWidget extends StatefulWidget {
   final List<CartItemDetailsModel> cartItems;
@@ -21,17 +25,28 @@ class CartItemWidget extends StatefulWidget {
 }
 
 class _CartItemWidgetState extends State<CartItemWidget> {
-  
+  final BookmarkService bookmarkService = BookmarkService();
+  List<String> bookmarkedProductIds = [];
+
   //Method for changing the cart item quantity
-  Future<void> changeQuantity (String cartItemId, int quantity) async {
+  Future<void> changeQuantity(String cartItemId, int quantity) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
-      DatabaseReference databaseReference = FirebaseDatabase.instance.ref().child("users").child(currentUserId).child("cart_items").child(cartItemId);
+      DatabaseReference databaseReference = FirebaseDatabase.instance
+          .ref()
+          .child("users")
+          .child(currentUserId)
+          .child("cart_items")
+          .child(cartItemId);
 
       await databaseReference.update({'cartQuantity': quantity});
 
       setState(() {
-        widget.cartItems[widget.cartItems.indexWhere((element) => element.cartItem.cartItemId == cartItemId)].cartItem.cartQuantity = quantity;
+        widget
+            .cartItems[widget.cartItems.indexWhere(
+                (element) => element.cartItem.cartItemId == cartItemId)]
+            .cartItem
+            .cartQuantity = quantity;
       });
       widget.onQuantityChanged();
     } catch (e) {
@@ -42,17 +57,23 @@ class _CartItemWidgetState extends State<CartItemWidget> {
       );
     }
   }
-  
+
   //Method for removing the cart item
   Future<void> removeCartItem(String cartItemId) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
-      DatabaseReference databaseReference = FirebaseDatabase.instance.ref().child("users").child(currentUserId).child("cart_items").child(cartItemId);
+      DatabaseReference databaseReference = FirebaseDatabase.instance
+          .ref()
+          .child("users")
+          .child(currentUserId)
+          .child("cart_items")
+          .child(cartItemId);
 
       await databaseReference.remove();
 
       setState(() {
-        widget.cartItems.removeWhere((element) => element.cartItem.cartItemId == cartItemId);
+        widget.cartItems.removeWhere(
+            (element) => element.cartItem.cartItemId == cartItemId);
       });
       widget.onQuantityChanged();
     } catch (e) {
@@ -62,6 +83,41 @@ class _CartItemWidgetState extends State<CartItemWidget> {
         ),
       );
     }
+  }
+
+  //Method for loading the bookmarked product ids
+  Future<void> loadBookmarkedProductIds() async {
+    for (var item in widget.cartItems) {
+      bool isBookmarked = await bookmarkService.isProductBookmarked(
+        item.productModel.productId,
+      );
+
+      if (isBookmarked) {
+        bookmarkedProductIds.add(item.productModel.productId);
+      }
+    }
+
+    setState(() {});
+  }
+
+  //Method for toggling the bookmark
+  void toggleBookmark(String productId) async {
+    await bookmarkService.toggleBookmark(productId, context);
+
+    if (bookmarkedProductIds.contains(productId)) {
+      bookmarkedProductIds.remove(productId);
+    } else {
+      bookmarkedProductIds.add(productId);
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadBookmarkedProductIds();
   }
 
   @override
@@ -166,14 +222,16 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                               //Remove from cart button
                               OutlinedButton(
                                 onPressed: () {
-                                  removeCartItem(widget.cartItems[index].cartItem.cartItemId.toString());
+                                  removeCartItem(widget
+                                      .cartItems[index].cartItem.cartItemId
+                                      .toString());
                                 },
                                 style: OutlinedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   minimumSize: Size(0, 0),
                                   tapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
                                   "Remove",
@@ -184,16 +242,25 @@ class _CartItemWidgetState extends State<CartItemWidget> {
 
                               //Save for later button
                               OutlinedButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  String productId = widget
+                                      .cartItems[index].productModel.productId;
+                                  toggleBookmark(productId);
+                                },
                                 style: OutlinedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   minimumSize: Size(0, 0),
                                   tapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
-                                  "Save for later",
+                                  bookmarkedProductIds.contains(widget
+                                          .cartItems[index]
+                                          .productModel
+                                          .productId)
+                                      ? "Saved"
+                                      : "Save for later",
                                   style: TextStyle(
                                       color: AppColors.text, fontSize: 13),
                                 ),
@@ -222,15 +289,23 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                   padding: EdgeInsets.all(2),
                                   child: Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       //Decrease button
                                       GestureDetector(
-                                        onTap: (){
-                                          int currentQuantity = widget.cartItems[index].cartItem.cartQuantity;
+                                        onTap: () {
+                                          int currentQuantity = widget
+                                              .cartItems[index]
+                                              .cartItem
+                                              .cartQuantity;
                                           if (currentQuantity > 1) {
-                                            int newQuantity = currentQuantity - 1;
-                                            changeQuantity(widget.cartItems[index].cartItem.cartItemId.toString(), newQuantity);
+                                            int newQuantity =
+                                                currentQuantity - 1;
+                                            changeQuantity(
+                                                widget.cartItems[index].cartItem
+                                                    .cartItemId
+                                                    .toString(),
+                                                newQuantity);
                                           }
                                         },
                                         child: Icon(
@@ -242,7 +317,8 @@ class _CartItemWidgetState extends State<CartItemWidget> {
 
                                       //Quantity text
                                       Text(
-                                        widget.cartItems[index].cartItem.cartQuantity
+                                        widget.cartItems[index].cartItem
+                                            .cartQuantity
                                             .toString(),
                                         style: TextStyle(
                                           color: Colors.black,
@@ -252,8 +328,16 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                       //Increase button
                                       GestureDetector(
                                         onTap: () {
-                                          int newQuantity = widget.cartItems[index].cartItem.cartQuantity + 1;
-                                          changeQuantity(widget.cartItems[index].cartItem.cartItemId.toString(), newQuantity);
+                                          int newQuantity = widget
+                                                  .cartItems[index]
+                                                  .cartItem
+                                                  .cartQuantity +
+                                              1;
+                                          changeQuantity(
+                                              widget.cartItems[index].cartItem
+                                                  .cartItemId
+                                                  .toString(),
+                                              newQuantity);
                                         },
                                         child: Icon(
                                           Icons.add,

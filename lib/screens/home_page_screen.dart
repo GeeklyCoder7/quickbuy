@@ -113,19 +113,23 @@ class _HomePageScreenState extends State<HomePageScreen> {
         isProductLoading = true;
       });
 
-      DatabaseReference productsNodeRef = FirebaseDatabase.instance.ref().child("products");
+      DatabaseReference productsNodeRef =
+          FirebaseDatabase.instance.ref().child("products");
 
       DatabaseEvent event = await productsNodeRef.once();
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists && snapshot.value != null) {
-        Map<String, dynamic> data = Map<String, dynamic>.from(snapshot.value as Map);
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
         List<ProductModel> filteredProductsList = [];
 
         for (var product in data.values) {
           Map<String, dynamic> productData = Map<String, dynamic>.from(product);
 
-          if (productData["productCategory"] != null && productData["productCategory"].toString().toLowerCase() == categoryName.toLowerCase()) {
+          if (productData["productCategory"] != null &&
+              productData["productCategory"].toString().toLowerCase() ==
+                  categoryName.toLowerCase()) {
             ProductModel productModel = ProductModel.fromMap(productData);
             filteredProductsList.add(productModel);
           }
@@ -160,6 +164,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     fetchCategories();
     fetchProducts();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,7 +184,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 isProductLoading = true;
               });
 
-              List<ProductModel> searchResults = await SearchService().searchProducts(value, context);
+              List<ProductModel> searchResults =
+                  await SearchService().searchProducts(value, context);
               setState(() {
                 products = searchResults;
                 isProductLoading = false;

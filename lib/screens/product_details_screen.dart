@@ -8,6 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../services/bookmark_service.dart';
 import '../utils/colors/app_colors.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -78,11 +79,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         .showSnackBar(SnackBar(content: Text("Already in cart")));
   }
 
+  //Method for checking if the product is already bookmarked
+  void checkIfBookmarked() async {
+    bool isBookmarked = await BookmarkService()
+        .isProductBookmarked(widget.productToShow.productId);
+    setState(() {
+      isProductBookmarked = isBookmarked;
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchCartItemId();
+    checkIfBookmarked();
   }
 
   @override
@@ -181,13 +192,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   color: AppColors.accent,
                                   size: 35,
                                 ),
-                                onTap: () {
-                                  setState(
-                                    () {
-                                      isProductBookmarked =
-                                          !isProductBookmarked;
-                                    },
-                                  );
+                                onTap: () async {
+                                  await BookmarkService().toggleBookmark(
+                                      widget.productToShow.productId, context);
+                                  bool updatedBookmarkStatus =
+                                      await BookmarkService()
+                                          .isProductBookmarked(
+                                              widget.productToShow.productId);
+                                  setState(() {
+                                    isProductBookmarked = updatedBookmarkStatus;
+                                  });
                                 },
                               ),
                               SizedBox(
@@ -290,7 +304,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                           borderRadius: BorderRadius.all(
                                             Radius.circular(20),
                                           ),
-                                          border: Border.all(color: Colors.amber, width: 1),
+                                          border: Border.all(
+                                              color: Colors.amber, width: 1),
                                         ),
                                         child: Center(
                                           child: Text(
