@@ -106,6 +106,53 @@ class _HomePageScreenState extends State<HomePageScreen> {
     }
   }
 
+  //Method for fetching products based on selected category
+  Future<void> fetchProductsByCategory(String categoryName) async {
+    try {
+      setState(() {
+        isProductLoading = true;
+      });
+
+      DatabaseReference productsNodeRef = FirebaseDatabase.instance.ref().child("products");
+
+      DatabaseEvent event = await productsNodeRef.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists && snapshot.value != null) {
+        Map<String, dynamic> data = Map<String, dynamic>.from(snapshot.value as Map);
+        List<ProductModel> filteredProductsList = [];
+
+        for (var product in data.values) {
+          Map<String, dynamic> productData = Map<String, dynamic>.from(product);
+
+          if (productData["productCategory"] != null && productData["productCategory"].toString().toLowerCase() == categoryName.toLowerCase()) {
+            ProductModel productModel = ProductModel.fromMap(productData);
+            filteredProductsList.add(productModel);
+          }
+        }
+
+        setState(() {
+          products = filteredProductsList;
+          isProductLoading = false;
+        });
+      } else {
+        setState(() {
+          products = [];
+          isProductLoading = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$e"),
+        ),
+      );
+      setState(() {
+        isProductLoading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -167,6 +214,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 child: CategorySectionWidget(
                   categoriesList: categories,
                   isLoading: isCategoryLoading,
+                  onCategorySelected: fetchProductsByCategory,
                 ),
               ),
             ),

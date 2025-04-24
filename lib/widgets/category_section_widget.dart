@@ -8,9 +8,14 @@ import '../utils/colors/app_colors.dart';
 class CategorySectionWidget extends StatefulWidget {
   final List<CategoryModel> categoriesList;
   final bool isLoading;
+  final Function(String) onCategorySelected;
 
-  const CategorySectionWidget(
-      {super.key, required this.categoriesList, required this.isLoading});
+  const CategorySectionWidget({
+    super.key,
+    required this.categoriesList,
+    required this.isLoading,
+    required this.onCategorySelected,
+  });
 
   @override
   State<CategorySectionWidget> createState() => _CategorySectionWidgetState();
@@ -39,37 +44,41 @@ class _CategorySectionWidgetState extends State<CategorySectionWidget> {
       itemCount: widget.categoriesList.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-          child: Column(
-            children: [
-              //Category circle image avatar
-              Container(
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.categoryBorder,
-                      width: 0.5,
-                    )),
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(
-                    widget.categoriesList[index].categoryImageUrl,
+        final category = widget.categoriesList[index];
+        return GestureDetector(
+          onTap: () => widget.onCategorySelected(category.categoryName),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            child: Column(
+              children: [
+                //Category circle image avatar
+                Container(
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.categoryBorder,
+                        width: 0.5,
+                      )),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(
+                      widget.categoriesList[index].categoryImageUrl,
+                    ),
                   ),
                 ),
-              ),
 
-              //Category name text widget
-              Expanded(
-                child: Text(
-                  widget.categoriesList.elementAt(index).categoryName,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 15,
+                //Category name text widget
+                Expanded(
+                  child: Text(
+                    widget.categoriesList.elementAt(index).categoryName,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 15,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
