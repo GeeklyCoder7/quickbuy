@@ -85,6 +85,7 @@ class _UserWishlistScreenState extends State<UserWishlistScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
+        iconTheme: IconThemeData(color: Colors.white),
         title: Center(
           child: Text(
             textAlign: TextAlign.center,

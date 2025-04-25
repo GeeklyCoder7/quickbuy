@@ -1,3 +1,4 @@
+import 'package:ecommerce_application/screens/saved_addresses_screen.dart';
 import 'package:ecommerce_application/screens/user_wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import '../utils/colors/app_colors.dart';
@@ -54,7 +55,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             //Address button
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SavedAddressesScreen()),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 minimumSize: Size(200, 45),
