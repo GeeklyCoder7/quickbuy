@@ -118,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children:  [
                   //Subtotal text
                   Row(
                     children: [
