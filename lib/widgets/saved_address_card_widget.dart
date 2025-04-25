@@ -1,4 +1,5 @@
 import 'package:ecommerce_application/models/address_model.dart';
+import 'package:ecommerce_application/screens/add_address_screen.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -79,7 +80,20 @@ class _SavedAddressCardWidgetState extends State<SavedAddressCardWidget> {
                       // Edit button
                       OutlinedButton(
                         onPressed: () {
-                          // TODO: Add edit logic
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddAddressScreen(
+                                existingAddress:
+                                    widget.savedAddressesList[index],
+                              ),
+                            ),
+                          ).then((_) {
+                            widget.onAddressUpdated();
+                            setState(() {
+
+                            });
+                          });
                         },
                         style: OutlinedButton.styleFrom(
                           padding:
@@ -107,6 +121,8 @@ class _SavedAddressCardWidgetState extends State<SavedAddressCardWidget> {
                           await AddressService()
                               .removeAddress(currentAddressId, context);
                           widget.onAddressUpdated();
+                          setState(() {
+                          });
                         },
                         style: OutlinedButton.styleFrom(
                           padding:

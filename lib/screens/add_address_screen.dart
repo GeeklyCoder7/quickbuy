@@ -9,7 +9,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class AddAddressScreen extends StatefulWidget {
-  const AddAddressScreen({super.key});
+  final AddressModel? existingAddress;
+  const AddAddressScreen({super.key, this.existingAddress});
 
   @override
   State<AddAddressScreen> createState() => _AddAddressScreenState();
@@ -52,7 +53,43 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           isSetDefault: setAsDefault,
         );
 
-        await AddressService().addNewAddress(newAddressModel);
+        try {
+          if (widget.existingAddress == null) {
+            await AddressService().addNewAddress(newAddressModel);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Address added successfully"),
+              ),
+            );
+          } else {
+            AddressModel updatedAddressModel = AddressModel(
+              addressId: widget.existingAddress!.addressId,
+              receiverFullName: receiverFullNameController.text.trim(),
+              apartmentNo: apartmentNoController.text.trim().toString(),
+              buildingName: buildingNameController.text.trim(),
+              area: areaController.text.trim(),
+              city: cityController.text.trim(),
+              state: stateController.text.trim(),
+              postalCode: postalCodeController.text.trim().toString(),
+              contactNo: contactNoController.text.trim().toString(),
+              isSetDefault: setAsDefault,
+            );
+
+            await AddressService().updateAddress(updatedAddressModel, context);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Address updated successfully"),
+              ),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error: $e"),
+            ),
+          );
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -68,6 +105,25 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           ),
         );
       }
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (widget.existingAddress != null) {
+      receiverFullNameController.text =
+          widget.existingAddress!.receiverFullName;
+      apartmentNoController.text = widget.existingAddress!.apartmentNo;
+      buildingNameController.text = widget.existingAddress!.buildingName;
+      areaController.text = widget.existingAddress!.area;
+      cityController.text = widget.existingAddress!.city;
+      stateController.text = widget.existingAddress!.state;
+      postalCodeController.text = widget.existingAddress!.postalCode;
+      contactNoController.text = widget.existingAddress!.contactNo;
+      setAsDefault = widget.existingAddress!.isSetDefault;
     }
   }
 
@@ -178,7 +234,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     child: InkWell(
                       onTap: () async {
                         await saveAddress();
-
                       },
                       borderRadius: BorderRadius.circular(20),
                       splashColor: Colors.white.withOpacity(0.2),

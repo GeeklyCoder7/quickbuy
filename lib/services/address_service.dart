@@ -107,4 +107,21 @@ class AddressService {
       );
     }
   }
+
+  //Method for updating the existing address
+  Future<void> updateAddress(AddressModel updatedAddressModel, BuildContext context) async {
+    try {
+      if (updatedAddressModel.isSetDefault) {
+        await unsetDefaultAddress();
+      }
+
+      DatabaseReference addressRef = databaseReference.child("users").child(currentUserId).child("saved_addresses").child(updatedAddressModel.addressId);
+
+      await addressRef.update(updatedAddressModel.toMap());
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
 }
