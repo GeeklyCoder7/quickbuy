@@ -122,6 +122,7 @@ class _SavedAddressCardWidgetState extends State<SavedAddressCardWidget> {
                               .removeAddress(currentAddressId, context);
                           widget.onAddressUpdated();
                           setState(() {
+                            widget.savedAddressesList.removeAt(index);
                           });
                         },
                         style: OutlinedButton.styleFrom(
