@@ -44,7 +44,8 @@ class AddressService {
   }
 
   //Method for changing the default address
-  Future<void> setDefaultAddress(String selectedAddressId, BuildContext context) async {
+  Future<void> setDefaultAddress(
+      String selectedAddressId, BuildContext context) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       DatabaseReference addressRef = FirebaseDatabase.instance
@@ -73,6 +74,31 @@ class AddressService {
         // Optional: Show feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Default address updated.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  //Method for deleting an address from the database
+  Future<void> removeAddress(String addressId, BuildContext context) async {
+    try {
+      DatabaseReference savedAddressesNodeRef = databaseReference
+          .child("users")
+          .child(currentUserId)
+          .child("saved_addresses")
+          .child(addressId);
+      if (await savedAddressesNodeRef.get().then((value) => value.exists)) {
+        await savedAddressesNodeRef.remove();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Address removed successfully")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Address not found")),
         );
       }
     } catch (e) {

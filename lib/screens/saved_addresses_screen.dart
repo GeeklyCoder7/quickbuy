@@ -18,10 +18,10 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
   //Variables to handle database
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-  
+
   //Lists
   List<AddressModel> savedAddressesList = [];
-  
+
   //Method for fetching the saved addresses
   Future<void> fetchSavedAddresses() async {
     try {
@@ -38,7 +38,8 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         List<AddressModel> temporarySavedAddressesList = [];
 
         for (var entry in rawMap.entries) {
-          Map<String, dynamic> addressData = Map<String, dynamic>.from(entry.value);
+          Map<String, dynamic> addressData =
+              Map<String, dynamic>.from(entry.value);
           temporarySavedAddressesList.add(AddressModel.fromMap(addressData));
         }
 
@@ -57,14 +58,13 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     }
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchSavedAddresses();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,43 +81,42 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         ),
         centerTitle: true,
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //Saved address card widget
-                  SavedAddressCardWidget(savedAddressesList: savedAddressesList, onAddressUpdated: () {
-                    fetchSavedAddresses();
-                    setState(() {
-                    });
-                  },),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          children: [
+            // Address Cards Widget
+            SavedAddressCardWidget(
+              savedAddressesList: savedAddressesList,
+              onAddressUpdated: () {
+                fetchSavedAddresses();
+                setState(() {});
+              },
+            ),
 
-                  //Add new address clickable text
-                  SizedBox(height: 10,),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AddAddressScreen()),
-                      );
-                    },
-                    child: Text(
-                      "+ Add new address",
-                      style: TextStyle(
-                        color: AppColors.accent,
-                        fontSize: 16,
-                      ),
-                    ),
-                  )
-                ],
+            SizedBox(height: 10),
+
+            // Add new address text
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddAddressScreen()),
+                ).then((_) {
+                  fetchSavedAddresses();
+                  setState(() {});
+                });
+              },
+              child: Text(
+                "+ Add new address",
+                style: TextStyle(
+                  color: AppColors.accent,
+                  fontSize: 16,
+                ),
               ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }

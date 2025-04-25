@@ -75,121 +75,83 @@ class _SavedAddressCardWidgetState extends State<SavedAddressCardWidget> {
                     height: 10,
                   ),
                   Row(
-                    children: widget.savedAddressesList[index].isSetDefault
-                        ? [
-                            //Edit button
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                minimumSize: Size(0, 0),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "Edit",
-                                style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
+                    children: [
+                      // Edit button
+                      OutlinedButton(
+                        onPressed: () {
+                          // TODO: Add edit logic
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          minimumSize: Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(
+                            color: AppColors.text,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
 
-                            //Remove button
-                            SizedBox(
-                              width: 15,
-                            ),
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                minimumSize: Size(0, 0),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "Remove",
-                                style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                          ]
-                        : [
-                            //Edit button
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                minimumSize: Size(0, 0),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "Edit",
-                                style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
+                      SizedBox(width: 10),
 
-                            //Remove button
-                            SizedBox(
-                              width: 15,
-                            ),
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                minimumSize: Size(0, 0),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "Remove",
-                                style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
+                      // Remove button
+                      OutlinedButton(
+                        onPressed: () async {
+                          String currentAddressId =
+                              widget.savedAddressesList[index].addressId;
+                          await AddressService()
+                              .removeAddress(currentAddressId, context);
+                          widget.onAddressUpdated();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          minimumSize: Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          "Remove",
+                          style: TextStyle(
+                            color: AppColors.text,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
 
-                            //Set as default button
-                            SizedBox(
-                              width: 15,
+                      // Conditionally show "Set as Default"
+                      if (!widget.savedAddressesList[index].isSetDefault) ...[
+                        SizedBox(width: 10),
+                        OutlinedButton(
+                          onPressed: () async {
+                            String selectedAddressId =
+                                widget.savedAddressesList[index].addressId;
+                            await AddressService()
+                                .setDefaultAddress(selectedAddressId, context);
+                            widget.onAddressUpdated();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            minimumSize: Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            "Set as Default",
+                            style: TextStyle(
+                              color: AppColors.text,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
                             ),
-                            OutlinedButton(
-                              onPressed: () async {
-                                String selectedAddressId =
-                                    widget.savedAddressesList[index].addressId;
-                                await AddressService().setDefaultAddress(
-                                  selectedAddressId,
-                                  context,
-                                );
-                                widget.onAddressUpdated();
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                minimumSize: Size(0, 0),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                "Set as Default",
-                                style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
