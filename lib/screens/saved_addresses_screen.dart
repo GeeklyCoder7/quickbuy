@@ -43,6 +43,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         }
 
         setState(() {
+          savedAddressesList.clear();
           savedAddressesList = temporarySavedAddressesList;
         });
       }
@@ -89,7 +90,11 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //Saved address card widget
-                  SavedAddressCardWidget(savedAddressesList: savedAddressesList,),
+                  SavedAddressCardWidget(savedAddressesList: savedAddressesList, onAddressUpdated: () {
+                    fetchSavedAddresses();
+                    setState(() {
+                    });
+                  },),
 
                   //Add new address clickable text
                   SizedBox(height: 10,),

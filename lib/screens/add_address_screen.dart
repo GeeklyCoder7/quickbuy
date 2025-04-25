@@ -1,4 +1,5 @@
 import 'package:ecommerce_application/models/address_model.dart';
+import 'package:ecommerce_application/services/address_service.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
 import 'package:ecommerce_application/widgets/app_bar_widget.dart';
 import 'package:ecommerce_application/widgets/textfield_widget.dart';
@@ -37,32 +38,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Future<void> saveAddress() async {
     if (formKey.currentState!.validate()) {
       try {
-        if (setAsDefault) {
-          DatabaseReference userAddressesRef = databaseReference
-              .child("users")
-              .child(currentUserId)
-              .child("saved_addresses");
-          DataSnapshot snapshot = await userAddressesRef.get();
-
-          if (snapshot.exists) {
-            Map allAddresses = snapshot.value as Map;
-            allAddresses.forEach((key, value) {
-              if (value['isSetDefault'] == true) {
-                userAddressesRef.child(key).update({'isSetDefault': false});
-              }
-            });
-          }
-        }
-
-        DatabaseReference newAddressRef = databaseReference
-            .child("users")
-            .child(currentUserId)
-            .child("saved_addresses")
-            .push();
-        String addressId = newAddressRef.key!;
-
         AddressModel newAddressModel = AddressModel(
-          addressId: addressId,
+          addressId: "",
           receiverFullName: receiverFullNameController.text.trim(),
           apartmentNo: apartmentNoController.text.trim().toString(),
           buildingName: buildingNameController.text.trim(),
@@ -74,7 +51,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           isSetDefault: setAsDefault,
         );
 
-        await newAddressRef.set(newAddressModel.toMap());
+        await AddressService().addNewAddress(newAddressModel);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
