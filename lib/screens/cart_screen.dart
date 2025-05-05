@@ -169,37 +169,87 @@ class _CartScreenState extends State<CartScreen> {
                           return;
                         }
 
-                        try {
-                          String deliveryAddressId =
-                              "default_address_id"; // Replace with actual logic or selection
+                        // Show confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Confirm Order"),
+                            content: Text(
+                                "Are you sure you want to place this order of ₹${subtotal.toStringAsFixed(2)}?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close dialog
+                                },
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors
+                                      .grey.shade200, // Light grey background
+                                  foregroundColor: Colors.red, // Text color
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
+                                ),
+                                child: Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors
+                                      .accent, // Your custom primary color
+                                  foregroundColor: Colors.white, // Text color
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
+                                ),
+                                onPressed: () async {
+                                  Navigator.of(context).pop(); // Close dialog
 
-                          // Pass cartItems to the placeOrder method
-                          await OrderService().placeOrder(
-                            orderTotal: subtotal,
-                            cartItems: cartItems,  // Pass cart items here
-                          );
+                                  try {
+                                    // Step 1: Place the order
+                                    await OrderService().placeOrder(
+                                      orderTotal: subtotal,
+                                      cartItems: cartItems,
+                                    );
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Order placed successfully!")),
-                          );
+                                    // Step 2: Remove cart items from Firebase
+                                    await FirebaseDatabase.instance
+                                        .ref()
+                                        .child("users")
+                                        .child(currentUserId)
+                                        .child("cart_items")
+                                        .remove();
 
-                          setState(() {
-                            cartItems.clear();
-                            subtotal = 0;
-                          });
+                                    // Step 3: Clear UI state after Firebase confirms deletion
+                                    setState(() {
+                                      cartItems.clear();
+                                      subtotal = 0;
+                                    });
 
-                          // Optionally: Remove all cart items from Firebase after placing order
-                          await FirebaseDatabase.instance
-                              .ref()
-                              .child("users")
-                              .child(currentUserId)
-                              .child("cart_items")
-                              .remove();
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed to place order: $e")),
-                          );
-                        }
+                                    // Optional: re-fetch to ensure everything's clean
+                                    await fetchCartItems();
+
+                                    // Show confirmation
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Order placed successfully!")),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Failed to place order: $e")),
+                                    );
+                                  }
+                                },
+                                child: Text("Confirm"),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                       borderRadius: BorderRadius.circular(20),
                       splashColor: Colors.white.withOpacity(0.2),
@@ -222,7 +272,6 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                   ),
-
 
                   //Cart items list
                   SizedBox(
