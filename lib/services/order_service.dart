@@ -11,7 +11,7 @@ class OrderService {
 
   Future<void> placeOrder({
     required double orderTotal,
-    required List<CartItemDetailsModel> cartItems,  // Pass cart items to the method
+    required List<CartItemDetailsModel> cartItems,  // Pass cart items to the method (not used anymore for products)
   }) async {
     try {
       String orderId = _dbRef.child("orders").push().key!;  // Generate order ID
@@ -20,23 +20,12 @@ class OrderService {
       // Get the default address ID before placing the order
       String deliveryAddressId = await AddressService().getDefaultAddressId();
 
-      // Create a map of products with actual product IDs as keys
-      Map<String, Map<String, dynamic>> products = {};
-      for (var item in cartItems) {
-        // Use productId as the key for each product
-        products[item.cartItem.productId] = {
-          'productId': item.cartItem.productId,  // Using actual productId
-          'quantity': item.cartItem.cartQuantity,  // Store the quantity
-        };
-      }
-
-      // Create a new order
+      // Create a new order with only necessary fields
       OrderModel newOrder = OrderModel(
         orderId: orderId,
         orderDate: orderDate,
         orderTotal: orderTotal,
         deliveryAddressId: deliveryAddressId,  // Use the correct addressId here
-        products: products,  // Store products as a map with productId as the key
       );
 
       // Push the order to Firebase
@@ -52,5 +41,4 @@ class OrderService {
       throw Exception("Failed to place order: $e");
     }
   }
-
 }

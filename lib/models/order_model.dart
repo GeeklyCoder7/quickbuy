@@ -3,14 +3,12 @@ class OrderModel {
   String orderDate;
   double orderTotal;
   String deliveryAddressId;
-  Map<String, Map<String, dynamic>> products;  // Updated to Map
 
   OrderModel({
     required this.orderId,
     required this.orderDate,
     required this.orderTotal,
     required this.deliveryAddressId,
-    required this.products,  // Store products as a map
   });
 
   Map<String, dynamic> toMap() {
@@ -19,7 +17,6 @@ class OrderModel {
       'orderDate': orderDate,
       'orderTotal': orderTotal,
       'deliveryAddressId': deliveryAddressId,
-      'products': products,  // Add products to the map
     };
   }
 
@@ -27,9 +24,12 @@ class OrderModel {
     return OrderModel(
       orderId: map['orderId'],
       orderDate: map['orderDate'],
-      orderTotal: map['orderTotal'],
+      orderTotal: (map['orderTotal'] is int)
+          ? (map['orderTotal'] as int).toDouble() // Convert int to double if it's an int
+          : (map['orderTotal'] is double)
+          ? map['orderTotal'] // If it's already a double, use it as is
+          : 0.0, // Default to 0.0 if it's neither an int nor a double
       deliveryAddressId: map['deliveryAddressId'],
-      products: Map<String, Map<String, dynamic>>.from(map['products'] ?? {}),
     );
   }
 }
