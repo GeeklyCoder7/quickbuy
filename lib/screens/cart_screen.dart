@@ -212,6 +212,7 @@ class _CartScreenState extends State<CartScreen> {
                                     await OrderService().placeOrder(
                                       orderTotal: subtotal,
                                       cartItems: cartItems,
+                                      orderStatus: "Active",
                                     );
 
                                     // Step 2: Remove cart items from Firebase

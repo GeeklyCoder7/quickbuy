@@ -3,12 +3,14 @@ class OrderModel {
   String orderDate;
   double orderTotal;
   String deliveryAddressId;
+  String orderStatus;
 
   OrderModel({
     required this.orderId,
     required this.orderDate,
     required this.orderTotal,
     required this.deliveryAddressId,
+    required this.orderStatus,
   });
 
   Map<String, dynamic> toMap() {
@@ -17,6 +19,7 @@ class OrderModel {
       'orderDate': orderDate,
       'orderTotal': orderTotal,
       'deliveryAddressId': deliveryAddressId,
+      'orderStatus': orderStatus,
     };
   }
 
@@ -30,6 +33,7 @@ class OrderModel {
           ? map['orderTotal'] // If it's already a double, use it as is
           : 0.0, // Default to 0.0 if it's neither an int nor a double
       deliveryAddressId: map['deliveryAddressId'],
+      orderStatus: map['orderStatus'],
     );
   }
 }
