@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../services/order_service.dart';
 import '../utils/colors/app_colors.dart';
 
 class CartScreen extends StatefulWidget {
@@ -118,7 +119,7 @@ class _CartScreenState extends State<CartScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children:  [
+                children: [
                   //Subtotal text
                   Row(
                     children: [
@@ -160,7 +161,46 @@ class _CartScreenState extends State<CartScreen> {
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () async {
+                        if (cartItems.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Your cart is empty!")),
+                          );
+                          return;
+                        }
+
+                        try {
+                          String deliveryAddressId =
+                              "default_address_id"; // Replace with actual logic or selection
+
+                          // Pass cartItems to the placeOrder method
+                          await OrderService().placeOrder(
+                            orderTotal: subtotal,
+                            cartItems: cartItems,  // Pass cart items here
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Order placed successfully!")),
+                          );
+
+                          setState(() {
+                            cartItems.clear();
+                            subtotal = 0;
+                          });
+
+                          // Optionally: Remove all cart items from Firebase after placing order
+                          await FirebaseDatabase.instance
+                              .ref()
+                              .child("users")
+                              .child(currentUserId)
+                              .child("cart_items")
+                              .remove();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Failed to place order: $e")),
+                          );
+                        }
+                      },
                       borderRadius: BorderRadius.circular(20),
                       splashColor: Colors.white.withOpacity(0.2),
                       highlightColor: Colors.white.withOpacity(0.1),
@@ -182,6 +222,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                   ),
+
 
                   //Cart items list
                   SizedBox(

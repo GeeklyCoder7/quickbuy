@@ -109,19 +109,53 @@ class AddressService {
   }
 
   //Method for updating the existing address
-  Future<void> updateAddress(AddressModel updatedAddressModel, BuildContext context) async {
+  Future<void> updateAddress(
+      AddressModel updatedAddressModel, BuildContext context) async {
     try {
       if (updatedAddressModel.isSetDefault) {
         await unsetDefaultAddress();
       }
 
-      DatabaseReference addressRef = databaseReference.child("users").child(currentUserId).child("saved_addresses").child(updatedAddressModel.addressId);
+      DatabaseReference addressRef = databaseReference
+          .child("users")
+          .child(currentUserId)
+          .child("saved_addresses")
+          .child(updatedAddressModel.addressId);
 
       await addressRef.update(updatedAddressModel.toMap());
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
+    }
+  }
+
+  //Method for getting the default address id from the database
+  Future<String> getDefaultAddressId() async {
+    try {
+      // Reference to the user's saved addresses in Firebase
+      DatabaseReference addressRef = databaseReference
+          .child("users")
+          .child(currentUserId)
+          .child("saved_addresses");
+
+      // Get the saved addresses snapshot
+      DataSnapshot snapshot = await addressRef.get();
+
+      if (snapshot.exists) {
+        // Loop through the addresses to find the one marked as default
+        Map addresses = snapshot.value as Map;
+        for (var key in addresses.keys) {
+          if (addresses[key]['isSetDefault'] == true) {
+            return key; // Return the addressId of the default address
+          }
+        }
+      }
+
+      // If no default address is found, return an empty string or handle appropriately
+      throw Exception("No default address found");
+    } catch (e) {
+      throw Exception("Failed to fetch default address: $e");
     }
   }
 }

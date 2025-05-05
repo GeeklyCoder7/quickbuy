@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:ecommerce_application/models/cart_item_details_model.dart';
-import 'package:ecommerce_application/models/cart_item_model.dart';
 import 'package:ecommerce_application/utils/colors/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../services/bookmark_service.dart';
 
 class CartItemWidget extends StatefulWidget {
@@ -73,7 +71,7 @@ class _CartItemWidgetState extends State<CartItemWidget> {
 
       setState(() {
         widget.cartItems.removeWhere(
-                (element) => element.cartItem.cartItemId == cartItemId);
+            (element) => element.cartItem.cartItemId == cartItemId);
       });
       widget.onQuantityChanged();
     } catch (e) {
@@ -100,9 +98,8 @@ class _CartItemWidgetState extends State<CartItemWidget> {
 
       if (snapshot.exists) {
         final Map<dynamic, dynamic> data = snapshot.value as Map;
-        final ids = data.values
-            .map((value) => value['productId'] as String)
-            .toList();
+        final ids =
+            data.values.map((value) => value['productId'] as String).toList();
 
         setState(() {
           bookmarkedProductIds = ids;
@@ -185,7 +182,6 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                               color: AppColors.text,
                             ),
                           ),
-
                           SizedBox(height: 5),
                           Text(
                             "₹${widget.cartItems[index].productModel.productPrice}",
@@ -195,7 +191,6 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                               color: Colors.black,
                             ),
                           ),
-
                           SizedBox(height: 5),
                           Text(
                             "(₹${widget.cartItems[index].productModel.productPrice} / count)",
@@ -204,14 +199,12 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                               color: AppColors.text,
                             ),
                           ),
-
                           SizedBox(height: 5),
                           Text("In stock",
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.green.shade600,
                               )),
-
                           SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -227,7 +220,7 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                       horizontal: 12, vertical: 6),
                                   minimumSize: Size(0, 0),
                                   tapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
                                   "Remove",
@@ -235,11 +228,10 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                       color: AppColors.text, fontSize: 13),
                                 ),
                               ),
-
                               OutlinedButton(
                                 onPressed: () {
-                                  String productId = widget.cartItems[index]
-                                      .productModel.productId;
+                                  String productId = widget
+                                      .cartItems[index].productModel.productId;
                                   toggleBookmark(productId);
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -247,10 +239,10 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                       horizontal: 12, vertical: 6),
                                   minimumSize: Size(0, 0),
                                   tapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                                      MaterialTapTargetSize.shrinkWrap,
                                   side: BorderSide(
-                                    color: bookmarkedProductIds.contains(
-                                        widget.cartItems[index]
+                                    color: bookmarkedProductIds.contains(widget
+                                            .cartItems[index]
                                             .productModel
                                             .productId)
                                         ? Colors.green
@@ -258,15 +250,15 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                   ),
                                 ),
                                 child: Text(
-                                  bookmarkedProductIds.contains(
-                                      widget.cartItems[index]
+                                  bookmarkedProductIds.contains(widget
+                                          .cartItems[index]
                                           .productModel
                                           .productId)
                                       ? "Saved"
                                       : "Save for later",
                                   style: TextStyle(
-                                    color: bookmarkedProductIds.contains(
-                                        widget.cartItems[index]
+                                    color: bookmarkedProductIds.contains(widget
+                                            .cartItems[index]
                                             .productModel
                                             .productId)
                                         ? Colors.green
@@ -277,7 +269,6 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                               ),
                             ],
                           ),
-
                           SizedBox(height: 15),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -297,7 +288,7 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                   padding: EdgeInsets.all(2),
                                   child: Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       GestureDetector(
                                         onTap: () {
@@ -309,8 +300,8 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                             int newQuantity =
                                                 currentQuantity - 1;
                                             changeQuantity(
-                                                widget.cartItems[index]
-                                                    .cartItem.cartItemId
+                                                widget.cartItems[index].cartItem
+                                                    .cartItemId
                                                     .toString(),
                                                 newQuantity);
                                           }
@@ -332,9 +323,9 @@ class _CartItemWidgetState extends State<CartItemWidget> {
                                       GestureDetector(
                                         onTap: () {
                                           int newQuantity = widget
-                                              .cartItems[index]
-                                              .cartItem
-                                              .cartQuantity +
+                                                  .cartItems[index]
+                                                  .cartItem
+                                                  .cartQuantity +
                                               1;
                                           changeQuantity(
                                               widget.cartItems[index].cartItem
